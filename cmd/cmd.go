@@ -18,6 +18,7 @@ func (c CMD) Start() {
 }
 
 func (c CMD) md5ResponseHandler() {
+	parallel := flag.Int("parallel", 10, "the max number of parallel requests")
 	flag.Parse()
 
 	urls := flag.Args()
@@ -30,7 +31,7 @@ func (c CMD) md5ResponseHandler() {
 	httpRepository := repositories.NewHTTPResponseRepository()
 	md5Service := services.NewMD5HashingService(httpRepository)
 
-	responses, err := md5Service.Hash(urls)
+	responses, err := md5Service.HashParallel(urls, *parallel)
 	if err != nil {
 		log.Fatal(err)
 	}
