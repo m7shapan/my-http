@@ -47,12 +47,14 @@ func (h md5HashingService) HashParallel(urls []string, maxParallel int) ([]model
 	resultChannel := make(chan interface{}, maxParallel)
 	dispatcher := dispatchers.NewDispatcher(resultChannel, maxParallel)
 
-	dispatcher.Start()
-	for i := 0; i < len(urls); i++ {
-		dispatcher.Push(jobs.NewHashingJob(h.responseRepository, urls[i]))
-	}
+	go func() {
+		dispatcher.Start()
+		for i := 0; i < len(urls); i++ {
+			dispatcher.Push(jobs.NewHashingJob(h.responseRepository, urls[i]))
+		}
 
-	dispatcher.Close()
+		dispatcher.Close()
+	}()
 
 	for r := range resultChannel {
 
